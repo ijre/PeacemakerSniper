@@ -1,0 +1,22 @@
+{
+  "name": "Peace Out Maker",
+  "description": "Yee Haw",
+  "author": "ijre",
+  "hooks":
+  [
+    {
+      "hook_id": "lib/tweak_data/weapontweakdata",
+      "script_path": "main.lua"
+    }
+  ],
+  "updates":
+  [
+    {
+      "identifier": "PS",
+      "host":
+      {
+        "meta": "https://github.com/ijre/PeacemakerSniper/releases/download/PS/meta.json"
+      }
+    }
+  ]
+}

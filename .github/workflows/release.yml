@@ -1,0 +1,55 @@
+name: Create PAYDAY mod release
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Delete Previous Release
+      uses: larryjoelane/delete-release-action@v1.0.24
+      with:
+        release-name: PS
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Archive Mod
+      run: |
+         ./.github/7za.exe -tzip a "./PS.zip" "./PeacemakerSniper"
+      shell: powershell
+    - name: Create New Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: PS
+        release_name: PS
+        draft: false
+        prerelease: false
+        body: |
+          This is the release version of the mod; should be 100% stable
+    - name: Upload Archive to Release
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./PS.zip
+        asset_name: PS.zip
+        asset_content_type: application/zip
+    - name: Hash mod and create mod meta file
+      id: create_meta_file
+      run: |
+         $(cat ./.github/meta.json).Replace("%HASH%", $(./.github/hash.exe "./PeacemakerSniper").Substring(17)) > ./meta.json
+    - name: Upload meta.json to Release
+      id: upload-meta-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./meta.json
+        asset_name: meta.json
+        asset_content_type: application/json
